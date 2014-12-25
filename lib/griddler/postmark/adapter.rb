@@ -46,11 +46,14 @@ module Griddler
         attachments = Array(params[:Attachments])
 
         attachments.map do |attachment|
-          ActionDispatch::Http::UploadedFile.new({
-            filename: attachment[:Name],
-            type: attachment[:ContentType],
-            tempfile: create_tempfile(attachment)
-          })
+          {
+            content_id: attachment[:ContentID],
+            file: ActionDispatch::Http::UploadedFile.new({
+              filename: attachment[:Name],
+              type: attachment[:ContentType],
+              tempfile: create_tempfile(attachment)
+              })
+          }
         end
       end
 
