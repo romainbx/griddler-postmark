@@ -3,8 +3,10 @@ require 'active_support/core_ext/string/strip'
 module Griddler
   module Postmark
     class Adapter
+
       def initialize(params)
         @params = params
+        @message_id = params[:MessageID]
       end
 
       def self.normalize_params(params)
@@ -18,17 +20,24 @@ module Griddler
           cc: extract_recipients(:CcFull),
           bcc: extract_recipients(:BccFull),
           from: full_email(params[:FromFull]),
-          date: params[:Date],
           subject: params[:Subject],
           text: params[:TextBody],
           html: params[:HtmlBody],
           attachments: attachment_files,
+          headers: headers
         }
       end
 
       private
 
       attr_reader :params
+
+      def headers
+        Array(@params[:Headers]).inject({}) do |hash, header|
+          hash[header[:Name]] = header[:Value]
+          hash
+        end
+      end
 
       def extract_recipients(key)
         params[key].to_a.map { |recipient| full_email(recipient) }
